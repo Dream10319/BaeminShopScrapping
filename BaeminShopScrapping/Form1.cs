@@ -42,27 +42,34 @@ namespace BaeminShopScrapping
                     List<(string Latitude, string Longitude)> coordinates = new List<(string, string)>();
 
                     // Read the file line by line
-                    using (StreamReader reader = new StreamReader(filePath))
+                    try
                     {
-                        string line;
-                        bool isFirstLine = true; // Variable to skip the header
-
-                        while ((line = reader.ReadLine()) != null)
+                        using (StreamReader reader = new StreamReader(filePath))
                         {
-                            if (isFirstLine)
-                            {
-                                isFirstLine = false; // Skip the first line which is the header
-                                continue;
-                            }
+                            string line;
+                            bool isFirstLine = true; // Variable to skip the header
 
-                            // Split the line into latitude and longitude parts using the regex
-                            string[] parts = delimiterRegex.Split(line.Trim());
-                            if (parts.Length >= 2)
+                            while ((line = reader.ReadLine()) != null)
                             {
-                                // Add the latitude and longitude as a tuple to the list
-                                coordinates.Add((parts[0], parts[1]));
+                                if (isFirstLine)
+                                {
+                                    isFirstLine = false; // Skip the first line which is the header
+                                    continue;
+                                }
+
+                                // Split the line into latitude and longitude parts using the regex
+                                string[] parts = delimiterRegex.Split(line.Trim());
+                                if (parts.Length >= 2)
+                                {
+                                    // Add the latitude and longitude as a tuple to the list
+                                    coordinates.Add((parts[0], parts[1]));
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Can't find locationinfo.txt file, please check that");
                     }
 
                     // Output the list of coordinates
@@ -109,7 +116,10 @@ namespace BaeminShopScrapping
                         }
 
                     }
-                    MessageBox.Show("Successfully done!!!");
+                    if(count > 0)
+                    {
+                        MessageBox.Show("Successfully done!!!");
+                    }
                 }));
                 th.Start();
             }
