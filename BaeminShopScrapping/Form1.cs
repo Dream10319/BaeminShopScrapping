@@ -72,9 +72,21 @@ namespace BaeminShopScrapping
                         MessageBox.Show("Can't find locationinfo.txt file, please check that");
                     }
 
+                    string strUrl = string.Format(@"https://shopdp-api.baemin.com/display-groups/BAEMIN?latitude=37.5450159&longitude=127.1368066&sessionId=b4e3292329dfd570f054c8&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic");
+                    var client = new RestClient(strUrl);
+                    var request = new RestRequest();
+                    request.AddHeader("Accept-Encoding", "gzip, deflate");
+                    request.AddHeader("Connection", "Keep-Alive");
+                    request.AddHeader("Host", "shopdp-api.baemin.com");
+                    request.AddHeader("User-Agent", "and1_12.23.0");
+                    request.AddHeader("USER-BAEDAL", "W/OnG34HSvOVmxn4McyeRzEK3Ldc9+ruPokFIKgQcm0zVU8aOlNuihy2TNW+7I7ZBORlK3kvRun7bOtwlyMA9PnUeLy01xw69qCQLwVBmJdm/hJB8mRTF8vkzRUt/1qkIjb9Tto92g2qIH9ldixRCvPKlFkepp+bOCN6lWvdTIvEx8s0W2jVWA4NWbjnwqqLvKR0wjQxP9pPG3heaCdvvA==");
+                    string strReturn = client.ExecuteGet(request).Content;
+                    JavaScriptSerializer jss = new JavaScriptSerializer();
+                    dynamic data = jss.Deserialize<dynamic>(strReturn);
+                    dynamic categories = data["data"]["displayCategories"];
+
                     // Output the list of coordinates
                     int locationNum = 0;
-                    long count = 0;
                     foreach (var (Latitude, Longitude) in coordinates)
                     {
                         locationNum++;
@@ -84,39 +96,47 @@ namespace BaeminShopScrapping
                             Lon.Text = Longitude.ToString();
                             LocationNum.Text = "Location" + locationNum.ToString();
                         }));
-                        File.WriteAllText("log.txt", Environment.NewLine + Lat.Text + ", " + Lon.Text + "   count: " + (count + 1).ToString());
-                        int shopcount = 2000;
-                        for (int i = 0; i < (int)(shopcount / 25); i++)
-                        {
-                            string strUrl = string.Format("https://shopdp-api.baemin.com/v3/BAEMIN_DELIVERY_HOME/shops?displayCategory=BAEMIN_DELIVERY_HOME_ALL&latitude={0}&longitude={1}&sort=SORT__DEFAULT&filter=&distance=3&offset={2}&limit=25&extension=1FYh_P4msOMcOUJVrQHAutAcO8q-i_jL8vfzU6-yoY06oOalI5Uww5eaD5RCu1oFaUuevU1iQ_4cNaVteAvSVH9vWZTM5qD-NVSEAq1v3mww5z7yTDRUkhBqZbXB4cSd-h-CzX59vdNs8ncfchvDH3QzWF57VK7ZlCTjzbuc80tX6msJ_foLEHgRUTMHmaRzH0rY7AuaY4hIg95XXswTtO2KNj7YzZN81yrfO-I-l8-Qjxx68aMk6Xrd3gKrSxWj4VkanX8EQ295ht_BebJsWZ5WoAhG5qRhyB-JH14n2-7Vl2z2nsFc39bCRw5u7Yet_3xm187Vy0Grw9qm36vSglgUz23FQjgZT7blmdNb2G6Y_xke8li7u2w8Qdhq65qCyr3vSUidcNZduENiR1VFeSe-dTW4AOnqvEYenaODcnM2oE6VFFFJw-IM6RtDhr0nB7CLaEd8A8yi5J0mFE04JD8OM7xhD9jwWkxZvP9BTaRB2OGz0qfS9uMTQxmv7SbQ6GIytfUbk-cnbTkq8WgdGKxuOQEj0StijolrbVxhKcm5BK6FlrvXCSVcD6rGB3pRESbuePQXg87PX0XQjvMn2u1EOBTnyk_o4hJRH2erOQGK2Unnxumzkq_yt30Q9q_1sOU7oE1yCZ21aS_w9oPAljqoaytx8Jpe2JQYMQB3Bdin2rmke-PS5IJ1IoErC6vhl1ZbOFSIN3sUHjAqoqD--2kj3MfnEgjN7rltgV_cfUxUusJkrro_jNVl3_IRvwGA21s0C6xHnErKredLlPexA6BRPjjU-4dU59wmY77OdCFnTzudEE0nRfd3o5Sw_fbmLIUUY5K6FVsek5t629P52889PO1OT8igq_XEA93nA_MIpbO3cPNim0drmqvgUgvCIXvRE5LcbLXgM24VHGcHW2wbfzwGGtaKyjnSkeG_UaCz8JuO7_sYrwdg3_Fn1lRckyBZoe_acuSQFDPPYbZutlq-BQ33e8I3UaTk_ZxIjHohof4e2nuUrpCTYV2fddlktgWlkWg1ZPgywRZYVN2lxH0gv6-Jwwg_Vro1SgxzLmBl_msIAbk4MhKKuI8z4mwzBtRhcYATrFWBlNOmiMoNt1SQcmYwX-WIDWA0GW70lr7ueri2GcxhLtb1hVc2FUHn7tMVrAyXk32sAJk2hasLx_JCvgqtsaRv-OIdQkkl6Zly3jjuJP9IIjqh8wuKjiWx_ugxy7FkRPKtyFmmIOOugEFozaIvSPHQdjeDHInevpX0wWuAT5f99HoCtn3-EJqzHgd4XX4ukSy-I8vhoUJJ39euZ3FFbpJ89qgi-gCJtd6rOak9VBHadM9IILbxWY6zQGOVeHiV-IMOBmJiMSsSuGP_jlWyPkZiyXMW0TdAPKxBqwGeuOktph-P-xNSJu9ChUQ23LGc_f6lv8NATU00TTSlIoanYukD88EcyWsZvtMsc0jnOeYepS3_POo0JJDaIhzCIoeXCET5qiEzuF0RxZxiEVulSpWFTkOSEKM-fRV9-yXhn7OmjPeze4hihopTAowZb4oqNwjSwnrMof1HG-xfK33rNNmM4E2N2TX_d54QAXd4AQE7uA62SnwLXv1ucEHf6iwkTpPk2wIqrBVQ52WjTuwnvYidN4WLmgmfoVPBhNo3RoWWjkTTIRjD1esH72QREqJ_BI8lm3PtqDntnGf34WrFB8diom-ij6BjEB5JcM0BiYZmlzwCz2yRVpCkZsHiJUIiZ3aUyMvJnbTBy9IUptfNBlt1WUA-wKQLAIx5q3pR6RAYuIJICKbstAZ7sLGLnTkfAUproYg7nEstxPyOu2miNhNkHhJ6hYuvvWCl2yPhIePyFU2TXUh-vI9qhWJaa2k-BiUza8ybuhRWIvDR-_UTxNq__YlAownzpvceTrxqnqoWA-9AQcMIJck0qZogymnC8ws_FYmFnECkKmWZLdvC8ZMotyoYbfG4T33LFxXBG5Bt5Z1i93u2ye9yqIkKBTf-1PpvCPZ-P7Xn62vZp1_9TmSPeLymocGBMeybNZxXW6AerttmiIrWBUFvQD17l1QRkyWZKakhRFJtYRy7EjENp1z3qkQCVhNGuwVkcb6kiFE-f2edmomE1XKi1rBhO82Vn3fCJUrJ7RORRAr6urSUmCnyBlgj2XDA2oBs3d-SlM8f0kN-cvMsj6_Nvy1pMYiKXnjl0Gp2hC0wBCJJshwLquHKUTmxyQxTX4MGRDdDctERZP_y39wpYpSg&perseusSessionId=1713643971490.651434705214992219.SrofotoxLE&memberNumber=000000000000&sessionId=34d130d02c97878260355f77f8&carrier=&site=7jWXRELC2e&dvcid=OPUD3ae65d495619f1bc&adid=cc6caa45-4929-4445-ae3b-4ec047f2d35c&deviceModel=CPH1823&appver=12.15.0&oscd=2&osver=32&dongCode=11140112&zipCode=04529", Lat.Text, Lon.Text, 25 * i);
-                            var client = new RestClient(strUrl);
-                            var request = new RestRequest();
-                            request.AddHeader("Accept-Encoding", "gzip, deflate");
-                            request.AddHeader("Connection", "Keep-Alive");
-                            request.AddHeader("Host", "shopdp-api.baemin.com");
-                            request.AddHeader("User-Agent", "and1_12.15.0");
-                            request.AddHeader("USER-BAEDAL", "5NcSD/b68BGSy+oL0soV4ZfI1zMjFb66m5fAaVhfwkqehqmm1VKuSu6QLV/ywRNdPKvFwHecyiVhezXwhHVQEsYJJY28heF75jt87YBZ5jJMxYp7Cs4bfTgFE1WW9H3FTWH/t5Z+YVxnG5JTj57jE0fJC21uf0TjStlUnMuA9fNzyL+lxU9CZTUvsg9M1u9U");
-                            string strReturn = client.ExecuteGet(request).Content;
-                            JavaScriptSerializer jss2 = new JavaScriptSerializer();
-                            dynamic data2 = jss2.Deserialize<dynamic>(strReturn);
-                            dynamic shops = data2["data"]["shops"];
-                            shopcount = (int)data2["data"]["totalCount"];
+                        File.WriteAllText("log.txt", Environment.NewLine + Lat.Text + ", " + Lon.Text);
 
-                            foreach (dynamic shop in shops)
+                        int catnum = 0;
+                        foreach (var category in categories)
+                        {
+                            catnum++;
+                            int shopcount = 2000;
+                            int totalcount = 0;
+                            for (int i = 0 ; i <= (int)(shopcount / 25); i++)
                             {
-                                count++;
-                                var dir = @"Shops";
-                                Directory.CreateDirectory(dir);
-                                File.WriteAllText(string.Format(@"{0}\shop-{1}-{2}.json", dir, locationNum, count), shop.ToString());
-                                this.Invoke(new Action(() =>
+                                string strShop = string.Format(@"https://shopdp-api.baemin.com/v3/BAEMIN/shops?displayCategory={3}&longitude={0}&latitude={1}&sort=SORT__DEFAULT&filter=&offset={2}&limit=25&extension=&perseusSessionId=1718023403008.788454282780365941.FWy8AA9FNv&memberNumber=000000000000&sessionId=b4e3292329dfd570f054c8&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", Longitude.ToString(), Latitude.ToString(), 25 * i, category["code"].ToString());
+                                var clientshop = new RestClient(strShop);
+                                string strReturnShop = clientshop.ExecuteGet(request).Content;
+                                JavaScriptSerializer jssshop = new JavaScriptSerializer();
+                                dynamic datashop = jssshop.Deserialize<dynamic>(strReturnShop);
+                                dynamic shops = datashop["data"]["shops"];
+                                shopcount = (int)datashop["data"]["totalCount"];
+                                foreach (var shop in shops)
                                 {
-                                    progressBar1.Value = (int)(10000 * count / shopcount);
-                                }));
+                                    totalcount++;
+                                    string shopnumber = shop["shopInfo"]["shopNumber"].ToString();
+                                    if(!string.IsNullOrEmpty(shopnumber))
+                                    {         
+                                        string detailurl = string.Format(@"https://shopdp-api.baemin.com/v8/shop/{0}/detail?lat={1}&lng={2}&limit=25&mem=&memid=&defaultreview=N&campaignId=2353465&displayGroup=BAEMIN&lat4Distance=37.5670653&lng4Distance=126.98168738&filter=&sessionId=1447226b282d5e40f677b5a1d37&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", shopnumber, Latitude.ToString(), Longitude.ToString());
+                                        var detailclient = new RestClient(detailurl);
+                                        string detailresult = detailclient.ExecuteGet(request).Content;
+                                        var dir = "Shops";
+                                        Directory.CreateDirectory(dir);
+                                        File.WriteAllText(string.Format(@"{0}\shop-{1}-{2}.json", dir, locationNum.ToString(), shopnumber), detailresult);
+                                        this.Invoke(new Action(() =>
+                                        {
+                                            progressBar1.Value = (int)((10000 * catnum * totalcount)/(shopcount * 15));
+                                        }));
+                                    }
+                                }
                             }
+                            
                         }
 
                     }
-                    if(count > 0)
+                    if(locationNum > 0)
                     {
                         MessageBox.Show("Successfully done!!!");
                     }
