@@ -17,13 +17,17 @@ namespace BaeminShopScrapping
 {
     public partial class Form1 : Form
     {
+        Thread th;
+
         public Form1()
         {
             InitializeComponent();
+
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            th.Abort();
             Application.Exit();
         }
 
@@ -31,7 +35,7 @@ namespace BaeminShopScrapping
         {
             try
             {
-                Thread th = new Thread(new ThreadStart(() =>
+                th = new Thread(new ThreadStart(() =>
                 {
                     string filePath = @"locationinfo.txt"; // Adjust the path to where your file is stored.
 
@@ -188,6 +192,12 @@ namespace BaeminShopScrapping
                 MessageBox.Show(ex.Message);
                 MessageBox.Show(LocationNum.Text);
             }
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            Lat.Enabled = true;
+            Lon.Enabled = true;
         }
     }
 }
