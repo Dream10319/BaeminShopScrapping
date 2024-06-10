@@ -122,13 +122,16 @@ namespace BaeminShopScrapping
                                         string detailurl = string.Format(@"https://shopdp-api.baemin.com/v8/shop/{0}/detail?lat={1}&lng={2}&limit=25&mem=&memid=&defaultreview=N&campaignId=2353465&displayGroup=BAEMIN&lat4Distance=37.5670653&lng4Distance=126.98168738&filter=&sessionId=1447226b282d5e40f677b5a1d37&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", shopnumber, Latitude.ToString(), Longitude.ToString());
                                         var detailclient = new RestClient(detailurl);
                                         string detailresult = detailclient.ExecuteGet(request).Content;
-                                        var dir = "Shops";
-                                        Directory.CreateDirectory(dir);
-                                        File.WriteAllText(string.Format(@"{0}\shop-{1}-{2}.json", dir, locationNum.ToString(), shopnumber), detailresult);
-                                        this.Invoke(new Action(() =>
+                                        if(detailresult.Contains("SUCCESS"))
                                         {
-                                            progressBar1.Value = (int)((10000 * catnum * totalcount)/(shopcount * 15));
-                                        }));
+                                            var dir = "Shops";
+                                            Directory.CreateDirectory(dir);
+                                            File.WriteAllText(string.Format(@"{0}\shop-{1}-{2}.json", dir, locationNum.ToString(), shopnumber), detailresult);
+                                            this.Invoke(new Action(() =>
+                                            {
+                                                progressBar1.Value = (int)((10000 * catnum * totalcount) / (shopcount * 15));
+                                            }));
+                                        }
                                     }
                                 }
                             }
