@@ -42,39 +42,51 @@ namespace BaeminShopScrapping
                     List<(string Latitude, string Longitude)> coordinates = new List<(string, string)>();
 
                     // Read the file line by line
-                    try
+                    if(radioButton1.Checked)
                     {
-                        using (StreamReader reader = new StreamReader(filePath))
+                        try
                         {
-                            string line;
-                            bool isFirstLine = true; // Variable to skip the header
-
-                            while ((line = reader.ReadLine()) != null)
+                            this.Invoke(new Action(() =>
                             {
-                                if (isFirstLine)
-                                {
-                                    isFirstLine = false; // Skip the first line which is the header
-                                    continue;
-                                }
+                                Lat.Enabled = false;
+                                Lon.Enabled = false;
+                            }));
+                            using (StreamReader reader = new StreamReader(filePath))
+                            {
+                                string line;
+                                bool isFirstLine = true; // Variable to skip the header
 
-                                // Split the line into latitude and longitude parts using the regex
-                                string[] parts = delimiterRegex.Split(line.Trim());
-                                if (parts.Length >= 2)
+                                while ((line = reader.ReadLine()) != null)
                                 {
-                                    // Add the latitude and longitude as a tuple to the list
-                                    coordinates.Add((parts[0], parts[1]));
+                                    if (isFirstLine)
+                                    {
+                                        isFirstLine = false; // Skip the first line which is the header
+                                        continue;
+                                    }
+
+                                    // Split the line into latitude and longitude parts using the regex
+                                    string[] parts = delimiterRegex.Split(line.Trim());
+                                    if (parts.Length >= 2)
+                                    {
+                                        // Add the latitude and longitude as a tuple to the list
+                                        coordinates.Add((parts[0], parts[1]));
+                                    }
                                 }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Can't find locationinfo.txt file, please check that");
+                        }
                     }
-                    catch (Exception ex)
+                    else if (radioButton2.Checked)
                     {
-                        MessageBox.Show("Can't find locationinfo.txt file, please check that");
+                        coordinates.Add((Lat.Text, Lon.Text));
                     }
 
                     string strUrl = string.Format(@"https://shopdp-api.baemin.com/display-groups/BAEMIN?latitude=37.5450159&longitude=127.1368066&sessionId=b4e3292329dfd570f054c8&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic");
-                    var client = new RestClient(strUrl);
-                    var request = new RestRequest();
+                    RestClient client = new RestClient(strUrl);
+                    RestRequest request = new RestRequest();
                     request.AddHeader("Accept-Encoding", "gzip, deflate");
                     request.AddHeader("Connection", "Keep-Alive");
                     request.AddHeader("Host", "shopdp-api.baemin.com");
@@ -97,43 +109,68 @@ namespace BaeminShopScrapping
                             LocationNum.Text = "Location" + locationNum.ToString();
                         }));
                         File.WriteAllText("log.txt", Environment.NewLine + Lat.Text + ", " + Lon.Text);
-
-                        int catnum = 0;
                         foreach (var category in categories)
                         {
-                            catnum++;
+                            this.Invoke(new Action(() =>
+                            {
+                                Category.Text = category["text"].ToString();
+                            }));
                             int shopcount = 2000;
                             int totalcount = 0;
                             for (int i = 0 ; i <= (int)(shopcount / 25); i++)
                             {
-                                string strShop = string.Format(@"https://shopdp-api.baemin.com/v3/BAEMIN/shops?displayCategory={3}&longitude={0}&latitude={1}&sort=SORT__DEFAULT&filter=&offset={2}&limit=25&extension=&perseusSessionId=1718023403008.788454282780365941.FWy8AA9FNv&memberNumber=000000000000&sessionId=b4e3292329dfd570f054c8&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", Longitude.ToString(), Latitude.ToString(), 25 * i, category["code"].ToString());
-                                var clientshop = new RestClient(strShop);
-                                string strReturnShop = clientshop.ExecuteGet(request).Content;
-                                JavaScriptSerializer jssshop = new JavaScriptSerializer();
-                                dynamic datashop = jssshop.Deserialize<dynamic>(strReturnShop);
-                                dynamic shops = datashop["data"]["shops"];
-                                shopcount = (int)datashop["data"]["totalCount"];
-                                foreach (var shop in shops)
+                                try
                                 {
-                                    totalcount++;
-                                    string shopnumber = shop["shopInfo"]["shopNumber"].ToString();
-                                    if(!string.IsNullOrEmpty(shopnumber))
-                                    {         
-                                        string detailurl = string.Format(@"https://shopdp-api.baemin.com/v8/shop/{0}/detail?lat={1}&lng={2}&limit=25&mem=&memid=&defaultreview=N&campaignId=2353465&displayGroup=BAEMIN&lat4Distance=37.5670653&lng4Distance=126.98168738&filter=&sessionId=1447226b282d5e40f677b5a1d37&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", shopnumber, Latitude.ToString(), Longitude.ToString());
-                                        var detailclient = new RestClient(detailurl);
-                                        string detailresult = detailclient.ExecuteGet(request).Content;
-                                        if(detailresult.Contains("SUCCESS"))
+                                    strUrl = string.Format(@"https://shopdp-api.baemin.com/v3/BAEMIN/shops?displayCategory={3}&longitude={0}&latitude={1}&sort=SORT__DEFAULT&filter=&offset={2}&limit=25&extension=&perseusSessionId=1718023403008.788454282780365941.FWy8AA9FNv&memberNumber=000000000000&sessionId=b4e3292329dfd570f054c8&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", Longitude.ToString(), Latitude.ToString(), 25 * i, category["text"].ToString());
+                                    client = new RestClient(strUrl);
+                                    strReturn = client.ExecuteGet(request).Content;
+                                    if(strReturn.Contains("SUCCESS"))
+                                    {
+                                        jss = new JavaScriptSerializer();
+                                        data = jss.Deserialize<dynamic>(strReturn);
+                                        dynamic shops = data["data"]["shops"];
+                                        shopcount = (int)data["data"]["totalCount"];
+                                        foreach (var shop in shops)
                                         {
-                                            var dir = "Shops";
-                                            Directory.CreateDirectory(dir);
-                                            File.WriteAllText(string.Format(@"{0}\shop-{1}-{2}.json", dir, locationNum.ToString(), shopnumber), detailresult);
-                                            this.Invoke(new Action(() =>
+                                            totalcount++;
+                                            string shopnumber = shop["shopInfo"]["shopNumber"].ToString();
+                                            if (!string.IsNullOrEmpty(shopnumber))
                                             {
-                                                progressBar1.Value = (int)((10000 * catnum * totalcount) / (shopcount * 15));
-                                            }));
+                                                try
+                                                {
+                                                    strUrl = string.Format(@"https://shopdp-api.baemin.com/v8/shop/{0}/detail?lat={1}&lng={2}&limit=25&mem=&memid=&defaultreview=N&campaignId=2353465&displayGroup=BAEMIN&lat4Distance=37.5670653&lng4Distance=126.98168738&filter=&sessionId=1447226b282d5e40f677b5a1d37&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", shopnumber, Latitude.ToString(), Longitude.ToString());
+                                                    client = new RestClient(strUrl);
+                                                    strReturn = client.ExecuteGet(request).Content;
+                                                    if (strReturn.Contains("SUCCESS"))
+                                                    {
+                                                        var dir = "Shops";
+                                                        Directory.CreateDirectory(dir);
+                                                        File.WriteAllText(string.Format(@"{0}\shop-{1}-{2}.json", dir, locationNum.ToString(), shopnumber), strReturn);
+                                                        this.Invoke(new Action(() =>
+                                                        {
+                                                            progressBar1.Value = (int)((10000 * totalcount) / shopcount);
+                                                        }));
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+
+                                                }
+
+                                            }
                                         }
                                     }
+                                    else
+                                    {
+                                        shopcount = 0;
+                                    }
+                                    
                                 }
+                                catch (Exception ex)
+                                {
+                                    
+                                }
+                                
                             }
                             
                         }
