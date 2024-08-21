@@ -165,6 +165,7 @@ namespace BaeminShopScrapping
                                         {
                                             totalcount++;
                                             string shopnumber = shop["shopInfo"]["shopNumber"].ToString();
+                                            string shoplogourl = shop["shopInfo"]["logoUrl"].ToString();
                                             if (!string.IsNullOrEmpty(shopnumber))
                                             {
                                                 try
@@ -177,6 +178,7 @@ namespace BaeminShopScrapping
                                                         var dir = $"ShopMenus\\{shopnumber}";
                                                         Directory.CreateDirectory(dir);
                                                         File.WriteAllText(string.Format(@"{0}\{1}.json", dir, shopnumber), strReturn);
+                                                        File.WriteAllText(string.Format(@"{0}\{1}-logo.json", dir, shopnumber), shoplogourl);
                                                         shopcounter++;
                                                         jss = new JavaScriptSerializer();
                                                         data = jss.Deserialize<dynamic>(strReturn);
