@@ -178,7 +178,7 @@ namespace BaeminShopScrapping
                                                         var dir = $"ShopMenus\\{shopnumber}";
                                                         Directory.CreateDirectory(dir);
                                                         File.WriteAllText(string.Format(@"{0}\{1}.json", dir, shopnumber), strReturn);
-                                                        File.WriteAllText(string.Format(@"{0}\{1}-logo.json", dir, shopnumber), shoplogourl);
+                                                        File.WriteAllText(string.Format(@"{0}\{1}-logo.json", dir, shopnumber), shop["shopInfo"].ToString());
                                                         shopcounter++;
                                                         jss = new JavaScriptSerializer();
                                                         data = jss.Deserialize<dynamic>(strReturn);
