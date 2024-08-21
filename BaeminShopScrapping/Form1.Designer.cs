@@ -38,14 +38,21 @@
             this.LocationNum = new System.Windows.Forms.Label();
             this.Category = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.ShopCounter = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.CategoryUpdown = new System.Windows.Forms.NumericUpDown();
+            this.OffsetUpdown = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CategoryUpdown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OffsetUpdown)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(79, 151);
+            this.button1.Location = new System.Drawing.Point(78, 184);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 0;
@@ -55,7 +62,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(225, 151);
+            this.button2.Location = new System.Drawing.Point(224, 184);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 1;
@@ -65,7 +72,7 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(12, 109);
+            this.progressBar1.Location = new System.Drawing.Point(12, 143);
             this.progressBar1.Maximum = 10000;
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(352, 23);
@@ -107,7 +114,7 @@
             // LocationNum
             // 
             this.LocationNum.AutoSize = true;
-            this.LocationNum.Location = new System.Drawing.Point(141, 88);
+            this.LocationNum.Location = new System.Drawing.Point(70, 122);
             this.LocationNum.Name = "LocationNum";
             this.LocationNum.Size = new System.Drawing.Size(44, 13);
             this.LocationNum.TabIndex = 7;
@@ -116,7 +123,7 @@
             // Category
             // 
             this.Category.AutoSize = true;
-            this.Category.Location = new System.Drawing.Point(190, 88);
+            this.Category.Location = new System.Drawing.Point(160, 122);
             this.Category.Name = "Category";
             this.Category.Size = new System.Drawing.Size(48, 13);
             this.Category.TabIndex = 8;
@@ -133,6 +140,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Option";
             // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(200, 10);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(60, 17);
+            this.radioButton2.TabIndex = 1;
+            this.radioButton2.Text = "Manual";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+            // 
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
@@ -145,22 +163,62 @@
             this.radioButton1.Text = "FromFile";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
-            // radioButton2
+            // ShopCounter
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(200, 10);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(60, 17);
-            this.radioButton2.TabIndex = 1;
-            this.radioButton2.Text = "Manual";
-            this.radioButton2.UseVisualStyleBackColor = true;
-            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+            this.ShopCounter.AutoSize = true;
+            this.ShopCounter.Location = new System.Drawing.Point(265, 122);
+            this.ShopCounter.Name = "ShopCounter";
+            this.ShopCounter.Size = new System.Drawing.Size(43, 13);
+            this.ShopCounter.TabIndex = 10;
+            this.ShopCounter.Text = "counter";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(22, 87);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 13);
+            this.label3.TabIndex = 11;
+            this.label3.Text = "Offset";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(179, 88);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(78, 13);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "Category Index";
+            // 
+            // CategoryUpdown
+            // 
+            this.CategoryUpdown.Location = new System.Drawing.Point(264, 85);
+            this.CategoryUpdown.Maximum = new decimal(new int[] {
+            14,
+            0,
+            0,
+            0});
+            this.CategoryUpdown.Name = "CategoryUpdown";
+            this.CategoryUpdown.Size = new System.Drawing.Size(100, 20);
+            this.CategoryUpdown.TabIndex = 14;
+            // 
+            // OffsetUpdown
+            // 
+            this.OffsetUpdown.Location = new System.Drawing.Point(63, 84);
+            this.OffsetUpdown.Name = "OffsetUpdown";
+            this.OffsetUpdown.Size = new System.Drawing.Size(100, 20);
+            this.OffsetUpdown.TabIndex = 15;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(376, 186);
+            this.ClientSize = new System.Drawing.Size(376, 219);
+            this.Controls.Add(this.OffsetUpdown);
+            this.Controls.Add(this.CategoryUpdown);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.ShopCounter);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.Category);
             this.Controls.Add(this.LocationNum);
@@ -177,6 +235,8 @@
             this.Text = "BaeminShopScrapping";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CategoryUpdown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OffsetUpdown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -196,6 +256,11 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.Label ShopCounter;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown CategoryUpdown;
+        private System.Windows.Forms.NumericUpDown OffsetUpdown;
     }
 }
 

@@ -17,8 +17,13 @@ namespace BaeminShopScrapping
 {
     public partial class Form1 : Form
     {
-        Thread th;
-
+        Thread th = null;
+        bool isStarted = false;
+        int offset = 0;
+        int catindex = 0;
+        int subtotal = 0;
+        int shopcountersave = 0;
+        int locationnumsave = 0;
         public Form1()
         {
             InitializeComponent();
@@ -27,6 +32,7 @@ namespace BaeminShopScrapping
 
         private void button2_Click(object sender, EventArgs e)
         {
+            if(th != null)
             th.Abort();
             Application.Exit();
         }
@@ -35,6 +41,21 @@ namespace BaeminShopScrapping
         {
             try
             {
+                offset = (int)OffsetUpdown.Value;
+                catindex = (int)CategoryUpdown.Value;
+                if(!isStarted)
+                {
+                    button1.Text = "Pause";
+                    isStarted = true;
+                }
+                else
+                {
+                    button1.Text = "Start";
+                    isStarted = false;
+                    if (th != null)
+                        th.Abort();
+                    return;
+                }
                 th = new Thread(new ThreadStart(() =>
                 {
                     string filePath = @"locationinfo.txt"; // Adjust the path to where your file is stored.
@@ -102,7 +123,8 @@ namespace BaeminShopScrapping
                     dynamic categories = data["data"]["displayCategories"];
 
                     // Output the list of coordinates
-                    int locationNum = 0;
+                    int locationNum = locationnumsave;
+                    int shopcounter = shopcountersave;
                     foreach (var (Latitude, Longitude) in coordinates)
                     {
                         locationNum++;
@@ -112,23 +134,28 @@ namespace BaeminShopScrapping
                             Lon.Text = Longitude.ToString();
                             LocationNum.Text = "Location" + locationNum.ToString();
                         }));
-                        File.WriteAllText("log.txt", Environment.NewLine + Lat.Text + ", " + Lon.Text);
-                        foreach (var category in categories)
+                        for (int l = catindex; l < categories.Count; l++)
                         {
                             this.Invoke(new Action(() =>
                             {
-                                Category.Text = category["text"].ToString();
+                                Category.Text = categories[l]["text"].ToString();
                             }));
                             int shopcount = 2000;
-                            int totalcount = 0;
-                            for (int i = 0 ; i <= (int)(shopcount / 25); i++)
+                            int totalcount = subtotal;
+                            for (int i = offset; i <= (int)(shopcount / 25); i++)
                             {
                                 try
                                 {
-                                    strUrl = string.Format(@"https://shopdp-api.baemin.com/v3/BAEMIN/shops?displayCategory={3}&longitude={0}&latitude={1}&sort=SORT__DEFAULT&filter=&offset={2}&limit=25&extension=&perseusSessionId=1718023403008.788454282780365941.FWy8AA9FNv&memberNumber=000000000000&sessionId=b4e3292329dfd570f054c8&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", Longitude.ToString(), Latitude.ToString(), 25 * i, category["text"].ToString());
+                                    strUrl = string.Format(@"https://shopdp-api.baemin.com/v3/BAEMIN/shops?displayCategory={3}&longitude={0}&latitude={1}&sort=SORT__DEFAULT&filter=&offset={2}&limit=25&extension=&perseusSessionId=1718023403008.788454282780365941.FWy8AA9FNv&memberNumber=000000000000&sessionId=b4e3292329dfd570f054c8&carrier=302780&site=7jWXRELC2e&dvcid=OPUD6086af457479a7bb&adid=aede849f-5e9c-499f-827f-cb4e5c65d801&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=11140102&zipCode=04522&ActionTrackingKey=Organic", Longitude.ToString(), Latitude.ToString(), 25 * i, Category.Text);
+                                    File.WriteAllText("log.txt", Environment.NewLine + "lat:" + Lat.Text + ", lon:" + Lon.Text + ", offset:" + i.ToString() + ", catindex:" + l.ToString());
+                                    this.Invoke(new Action(() =>
+                                    {
+                                        CategoryUpdown.Value = l;
+                                        OffsetUpdown.Value = i;
+                                    }));
                                     client = new RestClient(strUrl);
                                     strReturn = client.ExecuteGet(request).Content;
-                                    if(strReturn.Contains("SUCCESS"))
+                                    if (strReturn.Contains("SUCCESS"))
                                     {
                                         jss = new JavaScriptSerializer();
                                         data = jss.Deserialize<dynamic>(strReturn);
@@ -147,13 +174,33 @@ namespace BaeminShopScrapping
                                                     strReturn = client.ExecuteGet(request).Content;
                                                     if (strReturn.Contains("SUCCESS"))
                                                     {
-                                                        var dir = "Shops";
+                                                        var dir = $"ShopMenus\\{shopnumber}";
                                                         Directory.CreateDirectory(dir);
-                                                        File.WriteAllText(string.Format(@"{0}\shop-{1}-{2}.json", dir, locationNum.ToString(), shopnumber), strReturn);
-                                                        this.Invoke(new Action(() =>
+                                                        File.WriteAllText(string.Format(@"{0}\{1}.json", dir, shopnumber), strReturn);
+                                                        shopcounter++;
+                                                        jss = new JavaScriptSerializer();
+                                                        data = jss.Deserialize<dynamic>(strReturn);
+                                                        dynamic groupMenus = data["data"]["shop_menu"]["menu_ord"]["groupMenus"];
+                                                        foreach(var groupMenu in groupMenus)
                                                         {
-                                                            progressBar1.Value = (int)((10000 * totalcount) / shopcount);
-                                                        }));
+                                                            foreach (var menu in groupMenu["menus"])
+                                                            {
+                                                                strUrl = string.Format($@"https://shopdp-api.baemin.com/v1/shops/{shopnumber}/menus/{menu["menuId"]}?useDelivery=true&useTakeout=true&useTableOrder=false&sessionId=1bd602fb042e017b54087217&carrier=302780&site=7jWXRELC2e&dvcid=OPUDf48850e556873dfc&adid=4bd027e0-d307-4740-8866-a9e00e4861f1&deviceModel=SM-G9500&appver=12.23.0&oscd=2&osver=32&dongCode=28237101&zipCode=21404&ActionTrackingKey=Organic");
+                                                                client = new RestClient(strUrl);
+                                                                strReturn = client.ExecuteGet(request).Content;
+                                                                File.WriteAllText(string.Format(@"{0}\{1}-{2}.json", dir, shopnumber, menu["menuId"]), strReturn);
+                                                                this.Invoke(new Action(() =>
+                                                                {
+                                                                    progressBar1.Value = (int)((10000 * totalcount) / shopcount);
+                                                                }));
+                                                                this.Invoke(new Action(() =>
+                                                                {
+                                                                    ShopCounter.Text = shopcounter.ToString();
+                                                                }));
+                                                                shopcountersave = shopcounter;
+                                                                subtotal = totalcount;
+                                                            }  
+                                                        }  
                                                     }
                                                 }
                                                 catch (Exception ex)
@@ -168,20 +215,21 @@ namespace BaeminShopScrapping
                                     {
                                         shopcount = 0;
                                     }
-                                    
+
                                 }
                                 catch (Exception ex)
                                 {
-                                    
+
                                 }
-                                
+
                             }
-                            
                         }
+                        locationnumsave = locationNum;
 
                     }
                     if(locationNum > 0)
                     {
+                        progressBar1.Value = 10000;
                         MessageBox.Show("Successfully done!!!");
                     }
                 }));
